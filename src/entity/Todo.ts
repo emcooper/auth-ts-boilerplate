@@ -19,6 +19,7 @@ export class Todo extends BaseEntity {
   @ManyToOne(() => User, (owner) => owner.todos, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    eager: true
   })
   owner!: User;
 
