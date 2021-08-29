@@ -154,12 +154,8 @@ export class TodoResolver {
 
             const userId = req.session.userId
 
-            const owner = await User.findOneOrFail({
-                where: { id: userId },
-            });
-
             const todos = await Todo.find({
-                where: { owner: owner }
+                where: { owner: userId }
             });
 
             return {
