@@ -2,7 +2,7 @@ import { Todo } from '../entity/Todo';
 import { CreateTodoInput } from '../inputs/TodoInput';
 import { ContextType } from '../types';
 import { FormError } from '../types/FormError';
-import { Arg, Ctx, Field, Mutation, ObjectType, Resolver } from 'type-graphql';
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from 'type-graphql';
 import { getManager } from 'typeorm';
 import { User } from '../entity/User';
 
@@ -13,6 +13,15 @@ export class TodoResponse {
 
     @Field(() => Todo, { nullable: true })
     todo?: Todo;
+}
+
+@ObjectType()
+export class ListTodosResponse {
+    @Field(() => [FormError], { nullable: true })
+    errors?: FormError[];
+
+    @Field(() => [Todo], { nullable: false, defaultValue: [] })
+    todos?: Todo[];
 }
 
 @Resolver(Todo)
@@ -35,7 +44,7 @@ export class TodoResolver {
                         },
                     ],
                 };
-            }
+            };
 
             const userId = req.session.userId
 
@@ -58,7 +67,7 @@ export class TodoResolver {
             })
 
             return {
-                todo,
+                todo
             };
         } catch (error) {
             return {
@@ -71,4 +80,47 @@ export class TodoResolver {
             };
         };
     }
+
+    @Query(() => ListTodosResponse)
+    async listTodos(
+        @Ctx() { req }: ContextType,
+    ): Promise<ListTodosResponse> {
+        try {
+            // check auth
+            if (!req.session.userId && !req.user) {
+                return {
+                    errors: [
+                        {
+                            field: 'user',
+                            message: 'User already logged out.',
+                        },
+                    ],
+                };
+            };
+
+            const userId = req.session.userId
+
+            const owner = await User.findOneOrFail({
+                where: { id: userId },
+              });
+
+              const todos = await Todo.find({
+                  where: {owner: owner}
+              });
+            
+            return {
+                todos
+            };
+        } catch (error) {
+            return {
+                errors: [
+                    {
+                        field: error.field || 'exception',
+                        message: error.message,
+                    },
+                ],
+            };
+        };
+    }
+
 }
