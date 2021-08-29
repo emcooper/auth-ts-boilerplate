@@ -20,7 +20,7 @@ export class ListTodosResponse {
     @Field(() => [FormError], { nullable: true })
     errors?: FormError[];
 
-    @Field(() => [Todo], { nullable: false })
+    @Field(() => [Todo], { nullable: true })
     todos?: Todo[];
 }
 
