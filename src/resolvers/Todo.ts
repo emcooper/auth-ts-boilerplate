@@ -1,5 +1,5 @@
 import { Todo } from '../entity/Todo';
-import { CreateTodoInput, UpdateTodoInput } from '../inputs/TodoInput';
+import { CreateTodoInput, DeleteTodoInput, UpdateTodoInput } from '../inputs/TodoInput';
 import { ContextType } from '../types';
 import { FormError } from '../types/FormError';
 import { Arg, Authorized, Ctx, Field, Mutation, ObjectType, Query, Resolver } from 'type-graphql';
@@ -75,11 +75,14 @@ export class TodoResolver {
     @Authorized([UserType.ADMIN_USER, UserType.NORMAL_USER])
     async updateTodo(
         @Arg('params')
-        { id, name, isComplete }: UpdateTodoInput
+        { id, name, isComplete }: UpdateTodoInput,
+        @Ctx() { req }: ContextType,
     ): Promise<TodoResponse> {
         try {
+            const userId = req.session.userId
+
             const todo = await Todo.findOneOrFail({
-                where: { id }
+                where: { id, owner: userId }
             });
 
             if (name) {
@@ -91,6 +94,39 @@ export class TodoResolver {
             }
 
             await todo.save({
+                reload: true,
+              });
+
+            return {
+                todo
+            };
+        } catch (error) {
+            return {
+                errors: [
+                    {
+                        field: error.field || 'exception',
+                        message: error.message,
+                    },
+                ],
+            };
+        };
+    }
+
+    @Mutation(() => TodoResponse)
+    @Authorized([UserType.ADMIN_USER, UserType.NORMAL_USER])
+    async deleteTodo(
+        @Arg('params')
+        { id }: DeleteTodoInput,
+        @Ctx() { req }: ContextType,
+    ): Promise<TodoResponse> {
+        try {
+            const userId = req.session.userId
+
+            const todo = await Todo.findOneOrFail({
+                where: { id , owner: userId}
+            });
+
+            await todo.softRemove({
                 reload: true,
               });
 

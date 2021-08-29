@@ -23,3 +23,10 @@ export class UpdateTodoInput {
     @Field({ nullable: true })
     isComplete?: Boolean;
 }
+
+
+@InputType()
+export class DeleteTodoInput {
+    @Field(() => ID)
+    id!: string
+}
