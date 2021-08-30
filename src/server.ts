@@ -26,6 +26,8 @@ import {
   GraphQLRequestListener,
 } from 'apollo-server-plugin-base';
 import { AuthenticationChecker } from './helpers/AuthenticationChecker';
+import { createTodoQuery, deleteTodoQuery, listTodosQuery, signInQuery, signUpQuery, updateTodoQuery } from './helpers/PlaygroundQueries';
+
 /**
  * Load env variables
  */
@@ -191,6 +193,8 @@ async function main(): Promise<void> {
   /**
    * Land Apollo server
    */
+
+  const endpoint = (process.env.APP_URL == "https://localhost:3030") ? `http://localhost:${process.env.PORT}/api` : `${process.env.APP_URL}/api`
   new ApolloServer({
     schema,
     schemaDirectives: {
@@ -213,6 +217,39 @@ async function main(): Promise<void> {
       settings: {
         'request.credentials': 'include',
       },
+      tabs: [
+        {
+          endpoint: endpoint,
+          query: signUpQuery,
+          name: "Sign Up"
+        },
+        {
+          endpoint: endpoint,
+          query: signInQuery,
+          name: "Sign In"
+        },
+        {
+          endpoint: endpoint,
+          query: createTodoQuery,
+          name: "Create Todo"
+        },
+        {
+          endpoint: endpoint,
+          query: listTodosQuery,
+          name: "List Todos"
+        },
+        {
+          endpoint: endpoint,
+          query: updateTodoQuery,
+          name: "Update Todo"
+        },
+        {
+          endpoint: endpoint,
+          query: deleteTodoQuery,
+          name: "Delete Todo"
+        }
+      ]
+
     },
     plugins: [
       {
