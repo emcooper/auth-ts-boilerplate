@@ -64,6 +64,7 @@ import { TodoResolver } from './resolvers/Todo';
  * Directives
  */
 import { LowerCaseDirective } from './directives';
+import { createTodoQuery, deleteTodoQuery, listTodosQuery, signInQuery, signUpQuery, updateTodoQuery } from './helpers/PlaygroundQueries';
 /**
  * Create database connnection
  */
@@ -191,6 +192,7 @@ async function main(): Promise<void> {
   /**
    * Land Apollo server
    */
+  const endpoint = `http://${process.env.HOST}:${process.env.PORT}/api`
   new ApolloServer({
     schema,
     schemaDirectives: {
@@ -213,6 +215,39 @@ async function main(): Promise<void> {
       settings: {
         'request.credentials': 'include',
       },
+      // tabs: [
+      //   {
+      //     endpoint: endpoint,
+      //     query: signUpQuery,
+      //     name: "Sign Up"
+      //   },
+      //   {
+      //     endpoint: endpoint,
+      //     query: signInQuery,
+      //     name: "Sign In"
+      //   },
+      //   {
+      //     endpoint: endpoint,
+      //     query: createTodoQuery,
+      //     name: "Create Todo"
+      //   },
+      //   {
+      //     endpoint: endpoint,
+      //     query: listTodosQuery,
+      //     name: "List Todos"
+      //   },
+      //   {
+      //     endpoint: endpoint,
+      //     query: updateTodoQuery,
+      //     name: "Update Todo"
+      //   },
+      //   {
+      //     endpoint: endpoint,
+      //     query: deleteTodoQuery,
+      //     name: "Delete Todo"
+      //   }
+      // ]
+
     },
     plugins: [
       {
